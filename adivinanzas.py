@@ -44,7 +44,10 @@ class JuegoAdivinanza:
             self.canvas.create_line(455, 125, 475, 135, width=4, fill='white')#X    
             #boca
             self.canvas.create_line(430, 170, 470, 170, width=5, fill='white')#-
-            
+        
+    def letra_ayuda(self):
+            print("hola")
+
     def adivinar_letra(self, letra):
         if letra == self.palabra:
             self.palabra_en_juego = list(self.palabra)
@@ -59,6 +62,7 @@ class JuegoAdivinanza:
         else:
             self.intentos -= 1
             self.dibujar_ahorcado()
+            self.letra_ayuda()
             if self.intentos == 0:
                 return "¡Perdiste! La palabra era: " + self.palabra
 
