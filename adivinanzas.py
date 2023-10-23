@@ -1,7 +1,7 @@
 import numpy as np
 import tkinter as tk
 from tkinter import *
-
+import random
 # Define the words or phrases for guessing
 palabras_a_adivinar = ["PERRO", "GATO", "RATA"]
 
@@ -44,9 +44,6 @@ class JuegoAdivinanza:
             self.canvas.create_line(455, 125, 475, 135, width=4, fill='white')#X    
             #boca
             self.canvas.create_line(430, 170, 470, 170, width=5, fill='white')#-
-        
-    def letra_ayuda(self):
-            print("hola")
 
     def adivinar_letra(self, letra):
         if letra == self.palabra:
@@ -62,12 +59,53 @@ class JuegoAdivinanza:
         else:
             self.intentos -= 1
             self.dibujar_ahorcado()
-            self.letra_ayuda()
             if self.intentos == 0:
                 return "¡Perdiste! La palabra era: " + self.palabra
 
         return "".join(self.palabra_en_juego)
+    def resolucion_ia(self):
+        # Define la longitud de la palabra secreta
+        word_length = len(self.palabra)
 
+        # Inicializa la población de soluciones candidatas
+        population = []
+        for _ in range(100):
+            population.append("".join(random.choice("abcdefghijklmnopqrstuvwxyz") for _ in range(word_length)))
+
+        # Define la función de aptitud
+        def fitness(solution):
+            matches = 0
+            for i, letter in enumerate(solution):
+                if letter == palabras_a_adivinar[0][i]:
+                    matches += 1
+            return matches
+
+        # Define una función simple de mutación
+        def mutate(solution):
+            index = random.randint(0, word_length - 1)
+            new_letter = random.choice("abcdefghijklmnopqrstuvwxyz")
+            return solution[:index] + new_letter + solution[index + 1:]
+
+        # Aplica el algoritmo genético
+        for _ in range(1000):
+            # Selecciona las soluciones más aptas
+            parents = sorted(population, key=fitness, reverse=True)[:2]
+
+            # Cruza las soluciones
+            child1 = parents[0][:word_length // 2] + parents[1][word_length // 2:]
+            child2 = parents[1][:word_length // 2] + parents[0][word_length // 2:]
+
+            # Muta las soluciones
+            child1 = mutate(child1)
+            child2 = mutate(child2)
+
+            # Reemplaza las soluciones menos aptas
+            population[population.index(min(population, key=fitness))] = child1
+            population[population.index(min(population, key=fitness))] = child2
+
+        # Encuentra la solución
+        solution = population[population.index(max(population, key=fitness))]
+        print(solution)
 
 class InterfazJuego:
     def __init__(self, ventana):
@@ -89,13 +127,15 @@ class InterfazJuego:
 
         self.boton_adivinar = tk.Button(ventana, text="Adivinar", command=self.adivinar)
         self.boton_adivinar.pack()
+    #resolver con boton IA
+
 
     def adivinar(self):
         letra = self.ingresar_letra.get().upper()
         resultado = self.juego.adivinar_letra(letra)
         if letra in self.juego.letras_adivinadas:
             return
-
+    #ingresar forma de cambio IA
         self.juego.letras_adivinadas.append(letra)
         self.label_palabra_juego.config(text=resultado)
         self.label_vidas.config(text=f"vidas: {self.juego.intentos}")
