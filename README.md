@@ -1,2 +1,2 @@
 # AHORCADO-IA
-juego de ahorcado, con implementacion de red de kohonen
+juego de ahorcado, con implementacion de Algoritmos genéticos
